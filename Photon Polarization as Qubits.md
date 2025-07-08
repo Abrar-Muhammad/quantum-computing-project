@@ -28,11 +28,11 @@ A quarter-wave plate introduces a phase shift:
 ### Entanglement:
 Two photons can be entangled using beam splitters and non-linear crystals, creating states like:
 
-## 🔗 Entangling Photons Using Polarization
+## Entangling Photons Using Polarization
 
 In photonic quantum computing, entanglement is achieved by manipulating the polarization of photons using beam splitters and nonlinear crystals.
 
-### 🧪 1. Photon Pair Generation – SPDC
+### 1. Photon Pair Generation – SPDC
 
 A high-energy laser beam (like UV light) is passed through a **nonlinear crystal** (e.g., BBO – beta barium borate).  
 This initiates a quantum optical process called **Spontaneous Parametric Down-Conversion (SPDC)**, producing two entangled photons:
@@ -40,19 +40,19 @@ This initiates a quantum optical process called **Spontaneous Parametric Down-Co
 - One laser photon ➡️ Two lower-energy photons
 - These two photons are created in an **entangled polarization state**
 
-### 🔄 2. Entanglement via Beam Splitters
+### 2. Entanglement via Beam Splitters
 
 The entangled photons are directed into a **beam splitter**, which allows their paths to overlap and interfere.  
 Due to quantum interference, the final state becomes a **Bell state** — a maximally entangled quantum state.
 
-### 📐 3. Resulting Bell State:
+### 3. Resulting Bell State:
 
 ####|ψ⟩ = 1/√2 (|H⟩|V⟩ + |V⟩|H⟩)
 
 - If one photon is measured as **horizontal** (`|H⟩`), the other must be **vertical** (`|V⟩`), and vice versa.
 - The two photons are now **inseparable** — their polarizations are **entangled** even across large distances.
 
-### 🔐 4. Applications of Entangled Photons
+### 4. Applications of Entangled Photons
 
 | Area                    | Use Case                                      |
 |-------------------------|-----------------------------------------------|
@@ -66,7 +66,7 @@ Entangling photon polarization is a core component in building scalable and secu
 
 While phase is a fundamental aspect of quantum state manipulation, **photon polarization** offers a practical and often simpler alternative for encoding qubit states. In photonic quantum computing, qubit states can be defined by the orientation of the electric field vector of a photon.
 
-### 8.1 Mapping Qubit States to Polarization
+### 5.1 Mapping Qubit States to Polarization
 
 | Qubit State         | Photon Polarization                      |
 |---------------------|-------------------------------------------|
@@ -80,7 +80,7 @@ For example:
 - A **45° linear polarization** represents a diagonal superposition state.
 - A **right or left circular polarization** corresponds to specific complex superpositions.
 
-### 8.2 Benefits of Polarization-Based Encoding
+### 5.2 Benefits of Polarization-Based Encoding
 
 - ✅ **Easier physical implementation:** Polarization is easier to control and measure using wave plates, polarizing beam splitters (PBS), and polarizers.
 - ✅ **Natural superposition:** Light inherently supports combinations of polarization states.
