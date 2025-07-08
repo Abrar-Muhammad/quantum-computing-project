@@ -284,7 +284,7 @@ Muhammad Abrar
 
 
 # How These Simulations Prove Light Can Be Used as Qubits
-You ran two quantum simulations:
+We ran two quantum simulations:
 
 1 Superposition Simulation using a Hadamard gate
 
