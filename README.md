@@ -19,6 +19,18 @@ This repository contains my quantum computing research projects. These are part 
 - Simulate and build quantum circuits
 - Share insights and progress
 
+## How I Built This
+
+This project was developed over 4 weeks using:
+
+- Research from online papers, IBM Qiskit docs, and YouTube lectures
+- Visual diagrams made in Draw.io
+- Coding in IBM Quantum Lab and Google Colab
+- I wrote and formatted all the content myself
+
+This was not copied. I used ChatGPT only for explanations and formatting guidance, but the ideas, connections, and writing are my own.
+
+
 ## 🌍 Author
 **Muhammad Abrar**  
 Student | Quantum Enthusiast 
