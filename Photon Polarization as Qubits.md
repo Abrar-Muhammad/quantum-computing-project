@@ -87,7 +87,7 @@ For example:
 - ✅ **Less decoherence:** Photons do not interact easily with their environment, keeping their polarization stable over long distances.
 - ✅ **No cryogenics:** Unlike superconducting qubits, polarization qubits work at room temperature.
 
-### 8.3 Research Extension Idea
+### 5.3 Research Extension Idea
 
 This leads to a novel direction:  
 **“Can we build all fundamental quantum logic gates using polarization-only transformations, minimizing or eliminating the need for phase manipulation?”**
