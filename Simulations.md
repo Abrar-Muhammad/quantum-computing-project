@@ -169,15 +169,11 @@ In photonic quantum computing, qubits can be encoded using **polarization**:
 
 Thus, a Bell state:
 
-\[
-|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|HH\rangle + |VV\rangle)
-\]
+|Φ⁺⟩ = (1/√2) × (|HH⟩ + |VV⟩)
 
 …is the light equivalent of:
 
-\[
-|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)
-\]
+|Φ⁺⟩ = (1/√2) × (|00⟩ + |11⟩)
 
 This state implies that both photons are **always polarized the same way**—either both `H` (horizontal) or both `V` (vertical). No case of one `H` and one `V` is possible.
 
@@ -295,7 +291,7 @@ Let’s understand how each of them reflects the behavior of light (EM waves) an
 ## Superposition Simulation & Light
 ###  Quantum Part:
 You applied a Hadamard (H) gate, putting a qubit into:
-
+|ψ⟩ = (1/√2) × (|H⟩ + |V⟩)
 Measured output:
    {'0': 492, '1': 532}
 ###  Light-Wave Equivalent:
@@ -310,7 +306,7 @@ This proves a single photon's polarization behaves like a quantum qubit in super
 ## Entanglement (Bell Pair) & Light
 ###  Quantum Part:
 You created a Bell state:
-
+|Φ⁺⟩ = (1/√2) × (|00⟩ + |11⟩)
 Measured output:
 {'00': 490, '11': 534}
 Only outputs 00 or 11 — perfect entanglement.
