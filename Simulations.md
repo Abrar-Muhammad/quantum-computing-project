@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/51fe0aca-2368-4a03-8e3a-87f3a3b2aa43)# Light as Logic: Simulating Photonic Qubits with Qiskit
+# Light as Logic: Simulating Photonic Qubits with Qiskit
 
 ## Abstract
 
@@ -754,7 +754,183 @@ else:
 Diagram:
  ![image](https://github.com/user-attachments/assets/e322627f-20a6-40ce-9b5e-527fdcdcc048)
 
+## Quantum Teleportation Visualization (Bloch Sphere)
+ This project demonstrates the quantum teleportation protocol using Qiskit and visualizes the qubit's state before and after  teleportation on the Bloch sphere.
 
+### Initial Qubit State (Before Teleportation)
+ This state is prepared as |+⟩ = (|0⟩ + |1⟩) / √2, which points to the +X axis on the Bloch sphere.
+
+  Code:
+   ```python
+# This script visualizes the state of a single qubit on the Bloch sphere.
+# The Bloch sphere is a geometrical representation of the pure state space of a single qubit.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+from qiskit.visualization import plot_bloch_multivector  # For Bloch sphere visualization
+import matplotlib.pyplot as plt
+
+# STEP 2: Create a quantum circuit for a single qubit
+qc = QuantumCircuit(1)
+
+# STEP 3: Prepare the qubit in a superposition state (|0⟩ + |1⟩)/√2 using Hadamard gate
+qc.h(0)
+
+# STEP 4: Get the statevector of the qubit after applying the gates
+state = Statevector.from_instruction(qc)
+
+# STEP 5: Plot the statevector on the Bloch sphere
+fig = plot_bloch_multivector(state)
+
+# STEP 6: Set a proper title using suptitle (not plt.title) for the figure returned by plot_bloch_multivector
+fig.suptitle("Bloch Sphere: Initial Qubit State |ψ⟩", fontsize=16)
+
+# STEP 7: Save the figure to a file
+fig.savefig("bloch_sphere_initial.png")
+
+# STEP 8: Display the plot
+fig.show()
+
+# STEP 9: Close the figure to clean up
+plt.close(fig)
+
+# Optional: Print the statevector (useful for understanding/debugging)
+print("Statevector:", state)
+
+```
+### Bloch Sphere (Before):
+
+![bloch_sphere_initial](https://github.com/user-attachments/assets/640e3108-0a28-4b86-a56d-aba5b58886b4)
+
+
+## Teleportation Circuit + Final State (After Teleportation)
+ Below is the full teleportation protocol simulation using ideal gates and no measurement (for clarity with the statevector simulator).
+  Code:
+   ```python
+# This script simulates a quantum teleportation protocol and visualizes
+# the final state of the teleported qubit (Qubit 2) on the Bloch sphere.
+# It uses a statevector simulator and correctly applies the "classical correction"
+# gates based on simulated classical measurement outcomes to show the ideal outcome.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit, transpile
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit.visualization import plot_bloch_multivector # Used for plotting Statevector on Bloch sphere
+from qiskit_aer import AerSimulator
+import matplotlib.pyplot as plt
+import numpy as np # Used for checking purity
+
+# STEP 2: Build the teleportation circuit with classical bits and conditional operations
+# We need 3 qubits and 2 classical bits for the sender's measurements.
+qc = QuantumCircuit(3, 2) # 3 qubits, 2 classical bits
+
+# Prepare the state |+⟩ = (|0⟩ + |1⟩)/√2 on qubit 0 (this is the state to teleport)
+# On the Bloch sphere, this state points towards the +X axis.
+qc.h(0)
+
+# Create Bell pair on qubit 1 and 2 (the entangled resource for teleportation)
+# This creates the state (|00> + |11>) / sqrt(2) for qubits 1 and 2.
+qc.h(1)
+qc.cx(1, 2)
+
+# Add a barrier for visual separation in the circuit diagram (optional)
+qc.barrier()
+
+# Alice's operations: Entangle her qubit (0) with her part of the Bell pair (1)
+# These operations transform the initial state into a specific entangled state
+# that allows for teleportation upon measurement.
+qc.cx(0, 1)
+qc.h(0)
+
+# Add a barrier for visual separation (optional)
+qc.barrier()
+
+# Measure Alice's qubits (0 and 1) and store results in classical bits (0 and 1)
+# These classical measurement outcomes will be used for conditional operations at the receiver's end.
+# IMPORTANT: While we use a statevector simulator (which doesn't 'collapse' in the same way as a QASM sim),
+# these measurements are necessary to set the classical bits that the `if_test` blocks rely on.
+qc.measure([0, 1], [0, 1])
+
+# Add a barrier for visual separation (optional)
+qc.barrier()
+
+# Apply classical corrections to qubit 2 based on measurement results
+# These are the crucial steps for reconstructing the original state at the receiver's end.
+# The `if_test` construct allows applying quantum gates conditionally based on classical bit values.
+# If classical bit 1 (qc.clbits[1]) is 1, apply an X gate to qubit 2.
+with qc.if_test((qc.clbits[1], 1)):
+    qc.x(2)
+# If classical bit 0 (qc.clbits[0]) is 1, apply a Z gate to qubit 2.
+with qc.if_test((qc.clbits[0], 1)):
+    qc.z(2)
+
+# STEP 3: Simulate the circuit using Aer statevector simulator
+# To get the statevector, we need to run the circuit WITHOUT the final measurement operations.
+# We will create a copy of the circuit without these measurements for statevector extraction.
+qc_for_statevector_sim = qc.remove_final_measurements(inplace=False)
+
+qc_for_statevector_sim.save_statevector()
+
+
+simulator = AerSimulator(method='statevector')
+compiled_qc = transpile(qc_for_statevector_sim, simulator)
+result = simulator.run(compiled_qc).result()
+
+# Retrieve the final statevector from the simulation result.
+# The `compiled_qc` is passed to ensure the correct experiment is referenced.
+final_state = result.get_statevector(compiled_qc)
+
+# STEP 4: Extract qubit 2's state using partial trace
+# We use a DensityMatrix for partial tracing as it's a robust method for subsystems.
+dm = DensityMatrix(final_state)
+# Trace out qubits 0 and 1 (indices 0 and 1) to get the reduced density matrix of qubit 2 (index 2).
+# Qiskit uses little-endian ordering, so qubits are ordered from right to left (q2 q1 q0).
+# To trace out q0 and q1, we specify their indices [0, 1].
+qubit2_dm = partial_trace(dm, [0, 1])
+
+# Check if it's pure
+# A pure state has a trace of its square equal to 1.
+def is_pure_density_matrix(rho):
+    return np.isclose((rho @ rho).trace(), 1.0)
+
+if is_pure_density_matrix(qubit2_dm.data):
+    # Convert the single-qubit density matrix back to a Statevector.
+    # For a pure state, this conversion is straightforward by taking the first column of the data.
+    qubit2_sv = Statevector(qubit2_dm.data[:, 0]) # Corrected: Extract data for Statevector constructor
+else:
+    # If the state is not pure, it indicates a problem in the teleportation logic
+    # or an issue with the conditional operations.
+    raise ValueError("Teleportation failed: Qubit 2 is not in a pure state after corrections.")
+
+# STEP 5: Plot Bloch sphere for the teleported qubit 2
+# plot_bloch_multivector is suitable for visualizing a single Statevector on the Bloch sphere.
+# It returns a Matplotlib Figure object.
+fig = plot_bloch_multivector(qubit2_sv)
+
+# Set the title for the plot. fig.suptitle sets a super title for the entire figure.
+fig.suptitle("Bloch Sphere: Teleported Qubit 2 State |+⟩", fontsize=16)
+
+# Save the plot to a file. This is crucial for viewing the output in environments
+# like Google Colab where interactive 3D plots might not render directly in the output cell.
+fig.savefig("bloch_sphere_teleported.png")
+
+# Display the plot. This attempts to open an interactive plot window.
+# If it doesn't appear interactively, please check the 'bloch_sphere_teleported.png' file.
+plt.show()
+
+# Close the figure to free up memory, especially important when generating multiple plots.
+plt.close(fig)
+
+# Print the final statevector of the teleported qubit for verification.
+print(" Teleported Qubit 2 Statevector:", qubit2_sv)
+
+```
+### Bloch Sphere (After):
+
+![bloch_sphere_teleported](https://github.com/user-attachments/assets/05304f44-bf80-4c3e-937e-84c100df1efb)
+
+ 
  # Simulating Decoherence (Noise in Photonic Qubits)
 
 In real-world quantum systems, qubits are never perfect — they interact with their environment and **lose coherence** over time. This is called **decoherence** and it's one of the main challenges in building large-scale quantum computers.
@@ -794,7 +970,7 @@ You will notice:
 
 ---
 
-### 💻 Code Block (Qiskit GHZ with Noise Model)
+### Code Block (Qiskit GHZ with Noise Model)
 
 ```python
 # This script simulates a 3-qubit GHZ (Greenberger–Horne–Zeilinger) state with a noise model.
