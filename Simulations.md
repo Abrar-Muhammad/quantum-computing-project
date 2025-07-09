@@ -1027,6 +1027,51 @@ print("Measurement Counts:", counts)
 ![image](https://github.com/user-attachments/assets/be055fe0-3c11-4422-a114-034144665afe)
 
 
+
+# Quantum Teleportation with Wavefunction Visualization
+
+This project simulates **quantum teleportation** using Qiskit and visualizes the **wavefunction (amplitude and phase)** of a qubit **before and after teleportation** using **City Plots**.
+
+---
+
+### What is a Wavefunction City Plot?
+
+The **City Plot** is a visual representation of a quantum state's **wavefunction**:
+
+-  **Height of bars** = amplitude (probability)  
+-  **Color hue** = complex **phase**  
+-  Shows both **real and imaginary** parts  
+-  Useful for **debugging**, **understanding entanglement**, and **verifying teleportation**
+
+> For a qubit like \(|\psi⟩ = \alpha|0⟩ + \beta|1⟩\),  
+> the city plot shows **α** and **β** as 3D bars.
+
+---
+
+### Qubit State to Teleport: |+⟩ = (|0⟩ + |1⟩)/√2
+
+This state is prepared on **Qubit 0** and teleported to **Qubit 2**.
+
+- This state lies on the **+X axis** of the Bloch Sphere.
+- You will see **equal real amplitudes** for |ψ⟩ = α|0⟩ + β|1⟩
+- No imaginary parts in the ideal case.
+
+---
+
+### What Does the Wavefunction Plot Show?
+
+The wavefunction:
+∣ψ⟩=α∣0⟩+β∣1⟩
+
+- **α, β** are **complex numbers** (amplitudes)
+- The **City Plot** reveals:
+  -  **Amplitude** (height of each bar)
+  -  **Phase** (color hue)
+  -  Real & Imaginary parts of each component
+Diagram:
+![wavefunction_city](https://github.com/user-attachments/assets/b44ae12d-6e1b-4280-889f-cbcb65bb1af6)
+
+
  
 
 
