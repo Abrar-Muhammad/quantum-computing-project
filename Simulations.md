@@ -1068,6 +1068,18 @@ The wavefunction:
   -  **Amplitude** (height of each bar)
   -  **Phase** (color hue)
   -  Real & Imaginary parts of each component
+
+Code:
+ ```python
+from qiskit.visualization import plot_state_city
+import matplotlib.pyplot as plt
+
+# Assuming `state` is a Statevector object
+fig = plot_state_city(state, title="Wavefunction: Amplitude & Phase", figsize=(6,6))
+fig.savefig("wavefunction_city.png")
+plt.show()
+
+```
 Diagram:
 ![wavefunction_city](https://github.com/user-attachments/assets/b44ae12d-6e1b-4280-889f-cbcb65bb1af6)
 
