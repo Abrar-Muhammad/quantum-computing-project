@@ -1,4 +1,4 @@
-# Light as Logic: Simulating Photonic Qubits with Qiskit
+![image](https://github.com/user-attachments/assets/51fe0aca-2368-4a03-8e3a-87f3a3b2aa43)# Light as Logic: Simulating Photonic Qubits with Qiskit
 
 ## Abstract
 
@@ -605,15 +605,154 @@ plt.show()
 # STEP 10: Print measurement counts.
 print("Counts:", counts)
 
-
 ```
+
 ### Result 
- This proves that quantum states can be transferred using entanglement and classical communication, even if the qubit itself is not transmitted. In the context of photonic qubits, this protocol could be implemented using polarized photons and optical components like beam splitters and wave plates to achieve the same functionality over fiber-optic channels.
+This proves that quantum states can be transferred using entanglement and classical communication, even if the qubit itself is not transmitted.
+
+In the context of photonic qubits, this protocol could be implemented using polarized photons and optical components like beam splitters and wave plates to achieve the same functionality over fiber-optic channels.
 
  ![image](https://github.com/user-attachments/assets/2feeb67f-8dc0-4733-b5f2-1ae6d6203cac)
 
- This section explains *why* teleportation is important and *how* it fits into your **light-based qubit research**.
+### Verification Code: Comparing Initial vs. Teleported State
 
+ Code:
+   ```python
+# This script verifies Quantum Teleportation by comparing the initial state
+# of the sender's qubit (qubit 0) with the final state of the receiver's
+# qubit (qubit 2) after the teleportation protocol.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import Aer
+from qiskit.visualization import plot_histogram
+from matplotlib import pyplot as plt
+
+# --- Part 1: Simulate the initial state of Qubit 0 directly for comparison ---
+
+# Create a simple circuit with 1 qubit and 1 classical bit
+qc_initial = QuantumCircuit(1, 1)
+# Prepare qubit 0 in the same arbitrary state as in the teleportation protocol
+# For this example, we use Hadamard to put it in superposition: (|0> + |1>) / sqrt(2)
+qc_initial.h(0)
+# Measure qubit 0
+qc_initial.measure(0, 0)
+
+# Simulate the initial qubit measurement
+simulator = Aer.get_backend('qasm_simulator')
+compiled_initial = transpile(qc_initial, simulator)
+result_initial = simulator.run(compiled_initial, shots=1024).result()
+counts_initial = result_initial.get_counts()
+
+print("Initial Qubit 0 Measurement Counts (for comparison):", counts_initial)
+
+# --- Part 2: Quantum Teleportation Protocol ---
+
+# Create a 3-qubit circuit with 3 classical bits for measurement
+# Qubit 0: Sender's qubit (state to be teleported)
+# Qubit 1: Sender's part of the Bell pair
+# Qubit 2: Receiver's part of the Bell pair
+qc_teleport = QuantumCircuit(3, 3) # We still need 3 classical bits for intermediate measurements,
+                                   # but we'll only plot the final qubit 2's result.
+
+# Step 2.1: Prepare sender's qubit (qubit 0) in an arbitrary state.
+# This must be the SAME state as qc_initial for a valid comparison.
+qc_teleport.h(0)
+
+# Step 2.2: Create Bell pair between qubit 1 and 2.
+qc_teleport.h(1)  # Put qubit 1 in superposition
+qc_teleport.cx(1, 2) # Entangle qubit 1 with qubit 2
+
+qc_teleport.barrier() # Optional: Separator for visual clarity in circuit diagram
+
+# Step 2.3: Entangle sender's qubit (0) with their part of the Bell pair (1).
+qc_teleport.cx(0, 1) # CNOT gate with qubit 0 as control, qubit 1 as target
+qc_teleport.h(0)   # Hadamard gate on qubit 0
+
+qc_teleport.barrier() # Optional: Separator for visual clarity
+
+# Step 2.4: Measure qubit 0 and 1 (sender's qubits).
+# The results of these measurements (classical bits 0 and 1) are used
+# to conditionally apply gates at the receiver's end.
+qc_teleport.measure([0, 1], [0, 1])
+
+qc_teleport.barrier() # Optional: Separator for visual clarity
+
+# Step 2.5: Apply conditional gates to qubit 2 (receiver).
+# The receiver applies gates to their qubit (qubit 2) based on the classical
+# measurement results received from the sender.
+# If classical bit 1 is 1, apply X gate to qubit 2.
+qc_teleport.cx(1, 2) # CNOT with classical bit 1 as control, qubit 2 as target
+# If classical bit 0 is 1, apply Z gate to qubit 2.
+qc_teleport.cz(0, 2) # Controlled-Z with classical bit 0 as control, qubit 2 as target
+
+qc_teleport.barrier() # Optional: Separator for visual clarity
+
+# Step 2.6: Measure the final qubit (qubit 2) at the receiver's end.
+# This is the crucial measurement to verify if the state was successfully teleported.
+qc_teleport.measure(2, 2) # ONLY measure qubit 2 and store in classical bit 2
+
+# STEP 3: Simulate the teleportation circuit.
+compiled_teleport = transpile(qc_teleport, simulator)
+result_teleport = simulator.run(compiled_teleport, shots=1024).result()
+
+# Get the measurement counts for the teleported qubit (qubit 2).
+# We need to process the counts to only show the result of classical bit 2.
+# The counts will be like {'000', '001', ..., '111'}
+# We are interested in the last bit, which corresponds to qubit 2.
+teleported_counts = {}
+raw_counts = result_teleport.get_counts()
+
+for outcome, count in raw_counts.items():
+    # The outcome string is like 'c2c1c0' (classical bit 2, classical bit 1, classical bit 0)
+    # We want the result of classical bit 2, which is the first character.
+    teleported_bit = outcome[0]
+    teleported_counts[teleported_bit] = teleported_counts.get(teleported_bit, 0) + count
+
+print("Teleported Qubit 2 Measurement Counts:", teleported_counts)
+
+# STEP 4: Plot histograms for comparison.
+
+# Create a figure with two subplots side-by-side
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6)) # Increased figure size
+
+# Plot histogram for the initial qubit 0 measurement
+plot_histogram(counts_initial, ax=ax1, color='green', bar_labels=True)
+ax1.set_title("Initial Qubit 0 State (Direct Measurement)")
+ax1.grid(True)
+ax1.set_xlabel("Measurement Outcome")
+ax1.set_ylabel("Count")
+
+# Plot histogram for the teleported qubit 2 measurement
+plot_histogram(teleported_counts, ax=ax2, color='purple', bar_labels=True)
+ax2.set_title("Teleported Qubit 2 State (Final Measurement)")
+ax2.grid(True)
+ax2.set_xlabel("Measurement Outcome")
+ax2.set_ylabel("Count")
+
+plt.tight_layout() # Adjust layout to prevent overlapping titles/labels
+
+# Save the combined plot to a file
+plt.savefig('quantum_teleportation_verification.png')
+
+# Display the plot
+plt.show()
+
+# Final conclusion based on counts
+print("\n--- Verification Summary ---")
+print(f"Expected counts for initial Qubit 0: {counts_initial}")
+print(f"Observed counts for teleported Qubit 2: {teleported_counts}")
+
+# Check if the distributions are similar
+if abs(counts_initial.get('0', 0) - teleported_counts.get('0', 0)) < 50 and \
+   abs(counts_initial.get('1', 0) - teleported_counts.get('1', 0)) < 50:
+    print("\nConclusion: The measurement distributions are very similar, indicating successful quantum teleportation!")
+else:
+    print("\nConclusion: The measurement distributions show some differences. Teleportation may not be ideal.")
+
+```
+Diagram:
+ ![image](https://github.com/user-attachments/assets/e322627f-20a6-40ce-9b5e-527fdcdcc048)
 
 
  # Simulating Decoherence (Noise in Photonic Qubits)
