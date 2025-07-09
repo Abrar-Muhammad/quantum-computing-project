@@ -328,3 +328,393 @@ This is exactly what your simulation shows — both qubits measured as 0 or both
   Polarization, amplitude, and phase can encode quantum information
   Your simulation is a theoretical + visual proof that light can be used for quantum logic
 
+
+  # GHZ State Simulation (Tripartite Entanglement)
+
+In classical systems, it's impossible to link three particles in a way that all their values are always correlated without directly communicating. However, in quantum mechanics, this becomes possible through **GHZ states**.
+
+A **GHZ (Greenberger–Horne–Zeilinger) state** is a special 3-qubit entangled state where all qubits behave as one — even when separated by large distances.
+
+###  GHZ State Formula
+
+ |GHZ⟩ = (1/√2) × (|000⟩ + |111⟩)
+ 
+This formula means:
+- The system is in a **superposition** of all three qubits being `0` or all being `1`
+- If you measure one qubit, you instantly know the value of the others
+- This is a **quantum-only** behavior — no classical system can do this
+
+### Quantum Circuit Logic
+
+To create a GHZ state, we apply:
+- A **Hadamard (H)** gate to qubit 0 to create superposition
+- Then two **CNOT** gates to entangle qubit 0 with qubit 1 and qubit 2
+
+### Simulation Output
+
+When simulated using Qiskit, the histogram will mostly show two states:
+
+- `000` → all qubits measured as 0  
+- `111` → all qubits measured as 1
+
+This proves that the qubits are **entangled**, not behaving independently.
+
+---
+
+### Code Block (Qiskit GHZ Simulation)
+
+```python
+# This script simulates a 3-qubit GHZ (Greenberger–Horne–Zeilinger) state using Qiskit.
+# It creates a GHZ state, measures all three qubits, and then plots the measurement results.
+!pip install qiskit qiskit-aer --upgrade
+# The GHZ state is a type of entangled quantum state involving three or more qubits,
+# often represented as:
+# $$
+# |\psi\rangle = \frac{1}{\sqrt{2}} (|000\rangle + |111\rangle)
+# $$
+# This state demonstrates strong quantum correlations between all three qubits.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import Aer
+from qiskit.visualization import plot_histogram
+from matplotlib import pyplot as plt
+
+# STEP 2: Create a circuit with 3 qubits and 3 classical bits
+# Qubits 0, 1, and 2 will be entangled to form the GHZ state.
+# Classical bits 0, 1, and 2 will store their respective measurement results.
+qc = QuantumCircuit(3, 3)
+
+# STEP 3: Create entanglement (GHZ state)
+# Put qubit 0 in superposition using a Hadamard gate.
+# This creates a state like ( |0⟩ + |1⟩ ) / √2 for qubit 0.
+qc.h(0)
+
+# Entangle qubit 0 with qubit 1 using a Controlled-NOT (CNOT) gate.
+# If qubit 0 is |0⟩, qubit 1 remains |0⟩. If qubit 0 is |1⟩, qubit 1 flips to |1⟩.
+# The state becomes ( |00⟩ + |11⟩ ) / √2 for qubits 0 and 1.
+qc.cx(0, 1)
+
+# Entangle qubit 0 with qubit 2 using another CNOT gate.
+# This extends the entanglement to qubit 2.
+# The final state becomes the GHZ state: ( |000⟩ + |111⟩ ) / √2.
+qc.cx(0, 2)
+
+# STEP 4: Measure all qubits
+# Measure all 3 qubits and map their results to their corresponding classical bits.
+qc.measure([0, 1, 2], [0, 1, 2])
+
+# STEP 5: Run simulation
+# Get the 'qasm_simulator' backend from Qiskit Aer.
+simulator = Aer.get_backend('qasm_simulator')
+
+# Transpile the circuit for the simulator. This optimizes the circuit for the backend.
+compiled = transpile(qc, simulator)
+
+# Run the compiled circuit on the simulator for 1024 shots.
+# 'shots' determines how many times the circuit is run to gather statistics.
+result = simulator.run(compiled, shots=1024).result()
+
+# Get the measurement counts from the simulation result.
+# 'counts' will be a dictionary, e.g., {'000': 505, '111': 519}.
+counts = result.get_counts()
+
+# STEP 6: Plot histogram
+# Create a Matplotlib figure and axes explicitly for better control over the plot.
+fig, ax = plt.subplots(figsize=(8, 6)) # Increased figure size for 3 qubits
+
+# Plot the histogram using Qiskit's plot_histogram function.
+# 'ax=ax' directs the plot to our specific axes.
+# 'color='blue'' sets the bar color to blue.
+# 'bar_labels=True' adds numerical labels on top of the bars for clarity.
+plot_histogram(counts, ax=ax, color='blue', bar_labels=True)
+
+# Set the title for the plot.
+ax.set_title("3-Qubit GHZ State: (|000⟩ + |111⟩) / √2")
+
+# Add a grid to the plot for better readability.
+ax.grid(True)
+
+# Save the plot to a file. This is crucial for viewing the output
+# if plt.show() doesn't work in your environment.
+# The image will be saved as 'ghz_state_histogram.png' in the same directory.
+plt.savefig('ghz_state_histogram.png')
+
+# Display the plot. This will attempt to open an interactive plot window.
+# If it doesn't appear, please check the 'ghz_state_histogram.png' file.
+plt.show()
+
+# STEP 7: Print result
+# Print the raw measurement counts to the console.
+print("Counts:", counts)
+```
+### Result 
+![image](https://github.com/user-attachments/assets/956ef4f8-bf9b-4397-a5a5-9b0b6a9b79c4)
+
+This experiment supports the core idea of this research — that quantum entanglement, such as in a GHZ state, can potentially be implemented using photonic systems (light waves), where coherence and synchronization can mimic multi-qubit behavior.
+
+
+# Quantum Teleportation Simulation (3-Qubit Protocol)
+
+Quantum teleportation is one of the most powerful demonstrations of quantum mechanics. It allows you to **transfer a quantum state** from one qubit to another — **without physically moving** the qubit itself.
+
+This process uses:
+- **Entanglement** between two qubits
+- **Classical communication**
+- **Quantum gates (CNOT, H)**
+
+### Concept
+
+A quantum state (like a superposition) can be "teleported" from one qubit (Alice) to another (Bob), using a third helper qubit and a Bell pair.
+
+This is done using:
+1. **Entangled pair**: Shared between Alice and Bob
+2. **CNOT + H gates**: Applied by Alice to entangle her qubit with the entangled pair
+3. **Measurements + classical communication**
+4. **Conditional gates** on Bob’s side to reconstruct the original state
+
+### 📎 Initial State
+
+ |ψ⟩ = α|0⟩ + β|1⟩
+
+ 
+This is the unknown state to be teleported.
+
+After running the teleportation protocol, **qubit 2 (Bob)** ends up in the same quantum state as **qubit 0 (Alice)** had originally — even though the qubit wasn’t sent directly.
+
+---
+
+### ⚙️ Quantum Circuit Summary
+
+- Qubit 0: The qubit to be teleported (prepared in superposition)
+- Qubit 1 & 2: Entangled Bell pair
+- Qubits 0 and 1 are measured
+- Results are used to conditionally rotate qubit 2
+- Final measurement confirms teleportation
+
+---
+
+### 🧪 Expected Result
+
+After the circuit runs:
+- The **state of qubit 0** will be recreated **on qubit 2**
+- Qubit 0 and 1 are discarded after measurement
+- **Qubit 2 holds the teleported state**
+
+---
+
+### Code Block (Qiskit Quantum Teleportation)
+
+```python
+# This script simulates a basic Quantum Teleportation protocol using Qiskit.
+# It demonstrates how the state of one qubit (sender's) can be transferred
+# to another qubit (receiver's) using entanglement and classical communication.
+
+# The core idea of quantum teleportation is to transfer an unknown quantum state
+# from a sender to a receiver, without physically moving the qubit itself.
+# This relies on:
+# 1. An entangled pair (Bell pair) shared between sender and receiver.
+# 2. Classical communication of measurement results from sender to receiver.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import Aer
+from qiskit.visualization import plot_histogram # Removed plot_bloch_multivector as it's not used
+# from qiskit.quantum_info import Statevector # Removed Statevector as it's not directly used for this simulation
+from matplotlib import pyplot as plt
+
+# Create a 3-qubit circuit with 3 classical bits for measurement
+# Qubit 0: Sender's qubit (state to be teleported)
+# Qubit 1: Sender's part of the Bell pair
+# Qubit 2: Receiver's part of the Bell pair
+qc = QuantumCircuit(3, 3)
+
+# STEP 2: Prepare sender's qubit (qubit 0) in an arbitrary state.
+# For demonstration, we'll put it in a superposition state using a Hadamard gate.
+# This is the unknown state $|\psi\rangle$ that we want to teleport.
+qc.h(0)
+# You could also apply other gates here to set a different initial state, e.g.:
+# qc.rx(theta, 0) # Rotate around X-axis
+# qc.ry(phi, 0)   # Rotate around Y-axis
+
+# STEP 3: Create Bell pair between qubit 1 and 2.
+# This entangled pair is shared between the sender (qubit 1) and receiver (qubit 2).
+qc.h(1)  # Put qubit 1 in superposition
+qc.cx(1, 2) # Entangle qubit 1 with qubit 2 (Bell state: (|00⟩ + |11⟩) / √2)
+
+# Add a barrier to separate preparation steps visually in the circuit diagram (optional)
+qc.barrier()
+
+# STEP 4: Entangle sender's qubit (0) with their part of the Bell pair (1).
+qc.cx(0, 1) # CNOT gate with qubit 0 as control, qubit 1 as target
+qc.h(0)   # Hadamard gate on qubit 0
+
+# Add a barrier before measurement (optional)
+qc.barrier()
+
+# STEP 5: Measure qubit 0 and 1 (sender's qubits).
+# The results of these measurements are classical bits that will be sent to the receiver.
+qc.measure([0, 1], [0, 1])
+
+# Add a barrier after sender's measurements (optional)
+qc.barrier()
+
+# STEP 6: Apply conditional gates to qubit 2 (receiver).
+# The receiver applies gates to their qubit (qubit 2) based on the classical
+# measurement results received from the sender.
+# If classical bit 1 is 1, apply X gate to qubit 2.
+qc.cx(1, 2) # CNOT with classical bit 1 as control, qubit 2 as target
+# If classical bit 0 is 1, apply Z gate to qubit 2.
+qc.cz(0, 2) # Controlled-Z with classical bit 0 as control, qubit 2 as target
+
+# STEP 7: Measure final qubit (qubit 2) at the receiver's end.
+# The state of qubit 2 should now be the teleported state from qubit 0.
+qc.measure(2, 2)
+
+# STEP 8: Simulate the quantum circuit.
+sim = Aer.get_backend('qasm_simulator')
+compiled = transpile(qc, sim)
+result = sim.run(compiled, shots=1024).result()
+counts = result.get_counts()
+
+# STEP 9: Plot histogram of results.
+# Create a Matplotlib figure and axes explicitly for better control.
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# Plot the histogram using Qiskit's plot_histogram function.
+# 'ax=ax' directs the plot to our specific axes.
+# 'color='blue'' sets the bar color to blue.
+# 'bar_labels=True' adds numerical labels on top of the bars for clarity.
+plot_histogram(counts, ax=ax, color='blue', bar_labels=True)
+
+# Set the title for the plot.
+ax.set_title("Quantum Teleportation Output (Qubit 0 ➝ Qubit 2)")
+
+# Add a grid to the plot for better readability.
+ax.grid(True)
+
+# Save the plot to a file. This is crucial for viewing the output
+# if plt.show() doesn't work in your environment.
+# The image will be saved as 'quantum_teleportation_histogram.png' in the same directory.
+plt.savefig('quantum_teleportation_histogram.png')
+
+# Display the plot. This will attempt to open an interactive plot window.
+# If it doesn't appear, please check the 'quantum_teleportation_histogram.png' file.
+plt.show()
+
+# STEP 10: Print measurement counts.
+print("Counts:", counts)
+
+
+```
+### Result 
+ This proves that quantum states can be transferred using entanglement and classical communication, even if the qubit itself is not transmitted. In the context of photonic qubits, this protocol could be implemented using polarized photons and optical components like beam splitters and wave plates to achieve the same functionality over fiber-optic channels.
+
+ ![image](https://github.com/user-attachments/assets/2feeb67f-8dc0-4733-b5f2-1ae6d6203cac)
+
+ This section explains *why* teleportation is important and *how* it fits into your **light-based qubit research**.
+
+
+
+ # Simulating Decoherence (Noise in Photonic Qubits)
+
+In real-world quantum systems, qubits are never perfect — they interact with their environment and **lose coherence** over time. This is called **decoherence** and it's one of the main challenges in building large-scale quantum computers.
+
+Photonic qubits (like those based on polarization or phase of light) are less susceptible to certain types of noise, but **still face decoherence due to**:
+
+- Photon scattering
+- Phase noise in optical fibers
+- Beam misalignment or absorption
+
+###  What is Decoherence?
+
+In quantum computing, decoherence causes a **loss of quantum information**, often degrading superposition and entanglement.
+
+For example:
+- A perfect GHZ state gives only `000` or `111`
+- But with decoherence, you start seeing `001`, `010`, `101` due to error
+
+---
+
+### Simulating Noise with Qiskit
+
+We can simulate noise by using Qiskit's **noise model API** to mimic:
+
+- **Depolarizing error**: Photon scattering or polarization drift
+- **Gate errors**: Imperfect wave plates or misaligned lenses
+- **Measurement errors**: Detector inefficiency or misread signals
+
+---
+
+### Expected Output
+
+You will notice:
+- **More noisy measurement outcomes** in the histogram
+- Less probability for pure `000` or `111` (GHZ state degrades)
+- Insight into why real-world implementation needs **error correction or stable optics**
+
+---
+
+### 💻 Code Block (Qiskit GHZ with Noise Model)
+
+```python
+# This script simulates a 3-qubit GHZ (Greenberger–Horne–Zeilinger) state with a noise model.
+# It creates a GHZ state, applies a basic noise model (depolarizing error),
+# measures all three qubits, and then plots the measurement results.
+
+# STEP 1: Import necessary libraries
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+from qiskit.visualization import plot_histogram
+from matplotlib import pyplot as plt
+
+# Import noise model components
+from qiskit_aer.noise import NoiseModel, depolarizing_error, thermal_relaxation_error
+
+# STEP 2: Create the noise model
+noise_model = NoiseModel()
+
+# Add depolarizing error (2% chance) to all H, X, and CNOT gates
+depol1_error = depolarizing_error(0.02, 1)  # 1-qubit gate
+depol2_error = depolarizing_error(0.02, 2)  # 2-qubit gate
+
+noise_model.add_all_qubit_quantum_error(depol1_error, ['h', 'x'])
+noise_model.add_all_qubit_quantum_error(depol2_error, ['cx'])
+
+# STEP 3: Create the GHZ state circuit (3 qubits)
+qc = QuantumCircuit(3, 3)
+qc.h(0)
+qc.cx(0, 1)
+qc.cx(0, 2)
+qc.measure([0, 1, 2], [0, 1, 2])
+
+# STEP 4: Simulate the circuit with noise
+simulator = AerSimulator(noise_model=noise_model)
+compiled = transpile(qc, simulator)
+result = simulator.run(compiled, shots=1024).result()
+counts = result.get_counts()
+
+# STEP 5: Plot histogram
+fig, ax = plt.subplots(figsize=(8, 6))
+plot_histogram(counts, ax=ax, color='blue', bar_labels=True)
+ax.set_title("GHZ State with Decoherence Noise")
+ax.grid(True)
+plt.savefig("ghz_noise_histogram.png")
+plt.show()
+
+# STEP 6: Show results
+print("Measurement Counts:", counts)
+
+```
+
+## Result
+
+![image](https://github.com/user-attachments/assets/be055fe0-3c11-4422-a114-034144665afe)
+
+
+ 
+
+
+
+
+
