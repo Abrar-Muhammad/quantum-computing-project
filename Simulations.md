@@ -1084,8 +1084,213 @@ Diagram:
 ![wavefunction_city](https://github.com/user-attachments/assets/b44ae12d-6e1b-4280-889f-cbcb65bb1af6)
 
 
- 
 
+
+# 🧠 Quantum Teleportation with Wavefunction Visualization
+
+This project simulates **quantum teleportation** using IBM's Qiskit framework and visualizes the **wavefunction (amplitude + phase)** of a qubit **before and after teleportation** using city plots and Bloch spheres.
+
+---
+
+## 🔬 What is Teleportation?
+
+Quantum teleportation allows one qubit's **state** (not the particle itself) to be transferred to another qubit, using:
+
+1. Entanglement
+2. Local operations
+3. Classical communication
+
+---
+
+## 🔗 Qubits Involved
+
+- `Qubit 0`: Original qubit to teleport (Alice's qubit)
+- `Qubit 1`: Part of the entangled Bell pair (with Bob)
+- `Qubit 2`: Receiver qubit (Bob's qubit)
+
+---
+
+## ⚙️ Simulation Protocol (Step-by-Step)
+
+### 1. Prepare the state |+⟩ to teleport
+
+We start with:
+
+The formula for the quantum superposition state in markdown is:
+
+
+
+$\frac{1}{\sqrt{2}}(|00⟩ + |11⟩)$
+
+
+
+This state points along the **+X axis** of the Bloch sphere.
+
+---
+
+### 2. Create a Bell pair (Qubits 1 and 2)
+
+We entangle Qubits 1 & 2:
+
+
+$\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$
+
+---
+
+### 3. Entangle the sender's qubit (Qubit 0) with Qubit 1
+
+Then apply a Hadamard and CNOT gate.
+
+---
+
+### 4. Apply ideal "classical corrections" as quantum gates
+
+We simulate the classical corrections by applying `CX` and `CZ` gates based on assumed measurement results.
+
+---
+
+### 5. Simulate using Aer (statevector simulator)
+
+We simulate the entire circuit and save the statevector.
+
+---
+
+### 6. Extract Qubit 2's state
+
+Using partial trace, we isolate the final state of the teleported qubit.
+
+---
+
+### 7. Visualize Wavefunction and Bloch Vector
+
+We use `plot_state_city()` and `plot_bloch_multivector()` to visualize:
+
+- Amplitude & Phase (Wavefunction)
+- Bloch Sphere Direction (Quantum vector)
+
+---
+
+## Visualization Outputs
+
+> You should place your images here once you generate them:
+
+![initial_wavefunction](https://github.com/user-attachments/assets/d9f1d547-f541-4542-bdd9-9e4118448ead)
+
+![teleported_wavefunction](https://github.com/user-attachments/assets/dc8bfd33-f8a3-4b0e-8232-58f23483c9b0)
+
+![bloch_sphere_teleported](https://github.com/user-attachments/assets/08bf901e-ef4e-4f6b-a782-2ed6a43bba3e)
+
+
+---
+
+## Results
+
+After teleportation, the state of Qubit 2 matches Qubit 0’s initial state, both in vector and amplitude-phase form.
+
+Fidelity: ~1.0 (ideal simulation)
+
+---
+
+## Code Used
+
+See below 
+```python
+# === CAPTURE INITIAL STATE OF QUBIT 0 BEFORE TELEPORTATION ===
+qc_init = QuantumCircuit(1)
+qc_init.h(0)  # Prepare |+⟩ state
+
+# Simulate and get the statevector
+initial_sv = Statevector.from_instruction(qc_init)
+
+# Plot wavefunction (amplitude + phase)
+fig0 = plot_state_city(initial_sv, title="Initial Qubit |+⟩ Wavefunction", figsize=(6,6))
+fig0.savefig("initial_wavefunction.png")
+plt.show()
+plt.close(fig0)
+
+
+
+from qiskit import QuantumCircuit, transpile
+from qiskit.quantum_info import Statevector, DensityMatrix, partial_trace
+from qiskit.visualization import plot_state_city, plot_bloch_multivector
+from qiskit_aer import AerSimulator
+import matplotlib.pyplot as plt
+from math import sqrt
+
+# Step 1: Build the teleportation circuit
+# Qubit 0: Alice's qubit (state to be teleported)
+# Qubit 1: Alice's half of the entangled pair
+# Qubit 2: Bob's half of the entangled pair (where the state will arrive)
+# We need 3 qubits and 2 classical bits for Alice's measurements.
+qc = QuantumCircuit(3, 2)
+
+# Prepare an initial state on qubit 0 to be teleported.
+# For example, prepare |+> state as in your original code.
+qc.h(0)
+qc.barrier() # Optional: for visual separation
+
+# Create Bell pair between qubit 1 (Alice) and qubit 2 (Bob)
+qc.h(1)
+qc.cx(1, 2)
+qc.barrier()
+
+# Alice's operations: Entangle qubit 0 (state to be teleported)
+# with qubit 1 (her Bell pair half)
+qc.cx(0, 1)
+qc.h(0)
+qc.barrier()
+
+# Alice's measurements: Measure qubits 0 and 1 into classical bits 0 and 1
+qc.measure([0, 1], [0, 1])
+qc.barrier() # Optional: for visual separation
+
+# Bob's operations (classical corrections based on Alice's measurements)
+# In Qiskit 1.0+, you apply conditional operations like this:
+with qc.if_test((qc.clbits[1], 1)): # If classical bit 1 is 1
+    qc.x(2) # Apply X gate to qubit 2
+
+with qc.if_test((qc.clbits[0], 1)): # If classical bit 0 is 1
+    qc.z(2) # Apply Z gate to qubit 2
+
+# Save the statevector *after* Bob's corrections but *before*
+# any subsequent measurements that might collapse the state for analysis.
+qc.save_statevector()
+
+# Step 2: Simulate using statevector simulator
+sim = AerSimulator(method='statevector')
+compiled = transpile(qc, sim)
+result = sim.run(compiled).result()
+final_state = result.get_statevector(compiled)
+
+# Step 3: Partial trace to get qubit 2’s state
+dm = DensityMatrix(final_state)
+qubit2_dm = partial_trace(dm, [0, 1]) # Trace out qubits 0 and 1, leaving qubit 2
+
+# Step 4: Convert to statevector (if pure)
+# Correct way to convert a DensityMatrix to a Statevector if it's pure
+qubit2_sv = qubit2_dm.to_statevector()
+
+# Step 5: Visualize teleported state (Wavefunction)
+fig1 = plot_state_city(qubit2_sv, title="Teleported Qubit |ψ⟩ Wavefunction", figsize=(6,6))
+fig1.savefig("teleported_wavefunction.png")
+# plt.show() # Uncomment if you want to display the plot
+plt.close(fig1)
+
+# Step 6: Bloch sphere for teleported qubit
+fig2 = plot_bloch_multivector(qubit2_sv)
+fig2.suptitle("Bloch Sphere: Teleported Qubit", fontsize=16)
+fig2.savefig("bloch_sphere_teleported.png")
+# plt.show() # Uncomment if you want to display the plot
+plt.close(fig2)
+
+# Optional: Print state
+print("Teleported Qubit Statevector:\n", qubit2_sv)
+
+# Verify if the teleported state is indeed |+> (or whatever you prepared on qubit 0)
+expected_state = Statevector([1/sqrt(2), 1/sqrt(2)]) # For the initial |+> state
+print(f"\nExpected Statevector (original |+>):\n {expected_state}")
+print(f"Are teleported and expected states close? {qubit2_sv.equiv(expected_state)}")
+```
 
 
 
