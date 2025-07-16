@@ -326,7 +326,7 @@ This is exactly what your simulation shows — both qubits measured as 0 or both
  ## This proves:
   Light (photons) can simulate real qubit behavior
   Polarization, amplitude, and phase can encode quantum information
-  Your simulation is a theoretical + visual proof that light can be used for quantum logic
+  This simulation is a theoretical + visual proof that light can be used for quantum logic
 
 
   # GHZ State Simulation (Tripartite Entanglement)
