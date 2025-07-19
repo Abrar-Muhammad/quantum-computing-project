@@ -60,6 +60,8 @@ This project was developed over 4 weeks using:
 
 This is not copied. I used ChatGPT only for explanations and formatting guidance, but the ideas, connections, and writing are my own.
 
+ Note: Since Qiskit does not natively simulate the physical optics (like beam splitters or polarizers), we abstract the photon qubit behavior via quantum gates acting on polarization-encoded qubits.
+
 
 ## 🌍 Author
 **Muhammad Abrar**  
