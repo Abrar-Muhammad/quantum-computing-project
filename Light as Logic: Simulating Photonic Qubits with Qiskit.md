@@ -1172,8 +1172,6 @@ We use `plot_state_city()` and `plot_bloch_multivector()` to visualize:
 
 ## Visualization Outputs
 
-> You should place your images here once you generate them:
-
 ![initial_wavefunction](https://github.com/user-attachments/assets/d9f1d547-f541-4542-bdd9-9e4118448ead)
 
 ![teleported_wavefunction](https://github.com/user-attachments/assets/dc8bfd33-f8a3-4b0e-8232-58f23483c9b0)
