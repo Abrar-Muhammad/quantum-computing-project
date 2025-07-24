@@ -1,5 +1,12 @@
 # Quantum Computing Research Project
 
+
+**Muhammad Abrar\***  
+Student, Grade 10, Federal Board of Intermediate and Secondary Education (FBISE),  
+Skardu, Gilgit-Baltistan, Pakistan  
+\*Corresponding Author: abrarmuhammad3232@gmail.com
+
+
  Welcome!  
 This repository contains my quantum computing research projects. These are part of my effort to gain admission into top global universities with a focus on science and technology.
 
